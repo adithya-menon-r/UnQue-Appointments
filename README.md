@@ -1,11 +1,12 @@
 # Unque Appointment APIs
 
-A backend server with REST APIs for managing appointment bookings between students and professors. This system allows students to authenticate, view available professor slots, and book/cancel appointments. Professors can set their availability and cancel appointments when necessary.
+A backend server with RESTful APIs for managing appointment bookings between students and professors. This system allows students to sign up, log in, view professor availability, book or cancel appointments. Professors can sign up, log in, set availability, and cancel appointments when necessary.
 
 ## Tech Stack
-- NodeJS, ExpressJS - Backend API routing & logic
-- MongoDB - NoSQL DB for storage
-- Jest, Supertest - API Testing
+- **NodeJS**, **ExpressJS** - Backend API routing & logic
+- **MongoDB** - NoSQL DB for storage
+- **JWT**, **BcryptJS** - Authentication
+- **Jest**, **Supertest** - API Testing
 
 ## Setup Instructions
 
@@ -24,7 +25,8 @@ npm install
 Create a `.env` file in the root directory with the following:
 ```
 PORT=5000
-MONGO_URI="your_mongodb_connection_string"
+JWT_SECRET="YOUR_JWT_SECRET"
+MONGO_URI="YOUR_MONGODB_CONNECTION_STRING"
 ```
 
 ### 4. Start the server
@@ -36,23 +38,29 @@ The server will now be running on `http://localhost:PORT`.
 
 ## API Endpoints
 
+All protected endpoints require a valid JWT in the `Authorization` header:
+```
+Authorization: Bearer <token>
+```
+
 ### Auth
-| Method | Endpoint       | Description              |
-|--------|----------------|--------------------------|
-| POST   | `/api/auth/login` | User login (creates user if doesn't exist) |
+| Method | Endpoint           | Description                                |
+|--------|--------------------|--------------------------------------------|
+| POST   | `/api/auth/signup` | Register a new user (student or professor) |
+| POST   | `/api/auth/login`  | Log in with email and password             |
 
 ### Availability
-| Method | Endpoint       | Description              |
-|--------|----------------|--------------------------|
-| GET    | `/api/availability` | Get available slots for a professor |
-| POST   | `/api/availability` | Set availability slots for a professor |
+| Method | Endpoint            | Description                             | Allowed By             |
+|--------|---------------------|-----------------------------------------|------------------------|
+| GET    | `/api/availability` | Get available slots for a professor     | Any authenticated user |
+| POST   | `/api/availability` | Set availability slots for a professor  | Professor              |
 
 ### Appointments
-| Method | Endpoint       | Description              |
-|--------|----------------|--------------------------|
-| POST   | `/api/appointments` | Book an appointment    |
-| DELETE | `/api/appointments/:appointmentId` | Cancel an appointment |
-| GET    | `/api/appointments/student/:studentId` | Get appointments for a specific student |
+| Method | Endpoint                               | Description                    | Allowed By                                  |
+|--------|----------------------------------------|--------------------------------|---------------------------------------------|
+| POST   | `/api/appointments`                    | Book an appointment            | Student                                     |
+| DELETE | `/api/appointments/:appointmentId`     | Cancel an appointment          | Student who booked or related Professor     |
+| GET    | `/api/appointments/student/:studentId` | Get appointments for a student | The student themselves or related Professor |
 
 
 ## Testing
