@@ -1,8 +1,20 @@
 import { Appointment } from "../models/Appointment.js";
+import { Availability } from "../models/Availability.js";
 
 export const bookAppointment = async (req, res) => {
   const studentId = req.user.id;
   const { professorId, date, start_time, end_time } = req.body;
+
+  const slotExists = await Availability.findOne({
+    professor: professorId,
+    date,
+    start_time,
+    end_time,
+  });
+
+  if (!slotExists) {
+    return res.status(400).json({ message: "This slot isn't available" });
+  }
 
   const existingAppointment = await Appointment.findOne({
     professor: professorId,
